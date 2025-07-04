@@ -55,9 +55,16 @@ export interface SendMessageRequest {
   content: string;
 }
 
+export interface SendMessageResponse {
+  user_message: Message;
+  ai_message: Message;
+}
+
 export interface ChatSearchResult {
   id: string;
   title: string;
-  content: string;
+  model: string;
   created_at: string;
+  updated_at: string;
+  message_count: number;
 }

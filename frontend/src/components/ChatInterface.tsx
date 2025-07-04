@@ -51,9 +51,9 @@ const ChatInterface: React.FC = () => {
     }
   };
 
-  const createNewChat = async (title?: string) => {
+  const createNewChat = async (title?: string, model?: string) => {
     try {
-      const newChat = await chatAPI.createChat({ title, model: 'gpt-4' });
+      const newChat = await chatAPI.createChat({ title, model: model || 'gpt-4' });
       setChats([newChat, ...chats]);
       navigate(`/chat/${newChat.id}`);
       return newChat;
@@ -89,6 +89,19 @@ const ChatInterface: React.FC = () => {
     }
   };
 
+  const updateChat = async (id: string, updates: Partial<Chat>) => {
+    try {
+      const updatedChat = await chatAPI.updateChat(id, updates);
+      setChats(chats.map(chat => chat.id === id ? updatedChat : chat));
+      if (currentChat?.id === id) {
+        setCurrentChat(updatedChat);
+      }
+    } catch (error) {
+      console.error('Failed to update chat:', error);
+      throw error;
+    }
+  };
+
   const sendMessage = async (content: string) => {
     if (!currentChat) {
       // Create a new chat if none exists
@@ -104,14 +117,15 @@ const ChatInterface: React.FC = () => {
       setSendingMessage(true);
 
       try {
-        const message = await messageAPI.sendMessage(newChat.id, { content });
-        setMessages(prev => prev.map(msg => msg.id === userMessage.id ? message : msg));
+        const response = await messageAPI.sendMessage(newChat.id, { content });
+        // Update messages with both user and AI messages
+        setMessages([response.user_message, response.ai_message]);
         
-        // Reload chat to get AI response
-        setTimeout(() => loadChat(newChat.id), 1000);
+        // Update the chat list with the updated chat
+        loadChats();
       } catch (error) {
         console.error('Failed to send message:', error);
-        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
+        setMessages([]);
       } finally {
         setSendingMessage(false);
       }
@@ -127,17 +141,27 @@ const ChatInterface: React.FC = () => {
       setSendingMessage(true);
 
       try {
-        const message = await messageAPI.sendMessage(currentChat.id, { content });
-        setMessages(prev => prev.map(msg => msg.id === userMessage.id ? message : msg));
+        const response = await messageAPI.sendMessage(currentChat.id, { content });
+        // Replace temp user message and add AI response
+        setMessages(prev => [...prev.filter(msg => msg.id !== userMessage.id), response.user_message, response.ai_message]);
         
-        // Reload chat to get AI response
-        setTimeout(() => loadChat(currentChat.id), 1000);
+        // Update the chat list with the updated chat
+        loadChats();
       } catch (error) {
         console.error('Failed to send message:', error);
         setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
       } finally {
         setSendingMessage(false);
       }
+    }
+  };
+
+  const searchChats = async (query: string) => {
+    try {
+      return await chatAPI.searchChats(query);
+    } catch (error) {
+      console.error('Failed to search chats:', error);
+      return [];
     }
   };
 
@@ -157,6 +181,7 @@ const ChatInterface: React.FC = () => {
         onCreateChat={createNewChat}
         onDeleteChat={deleteChat}
         onUpdateChatTitle={updateChatTitle}
+        onSearchChats={searchChats}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
       />
@@ -166,6 +191,7 @@ const ChatInterface: React.FC = () => {
           chat={currentChat}
           messages={messages}
           onSendMessage={sendMessage}
+          onUpdateChat={updateChat}
           loading={sendingMessage}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}

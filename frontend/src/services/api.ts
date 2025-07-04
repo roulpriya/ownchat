@@ -9,6 +9,7 @@ import {
   AuthResponse,
   CreateChatRequest,
   SendMessageRequest,
+  SendMessageResponse,
   ChatSearchResult
 } from '../types';
 
@@ -98,12 +99,17 @@ export const chatAPI = {
     });
     return response.data;
   },
+
+  regenerateTitle: async (chatId: string): Promise<Chat> => {
+    const response: AxiosResponse<{ message: string; chat: Chat }> = await api.post(`/api/chats/${chatId}/regenerate-title`);
+    return response.data.chat;
+  },
 };
 
 // Message API
 export const messageAPI = {
-  sendMessage: async (chatId: string, messageData: SendMessageRequest): Promise<Message> => {
-    const response: AxiosResponse<Message> = await api.post(`/api/chats/${chatId}/messages`, messageData);
+  sendMessage: async (chatId: string, messageData: SendMessageRequest): Promise<SendMessageResponse> => {
+    const response: AxiosResponse<SendMessageResponse> = await api.post(`/api/chats/${chatId}/messages`, messageData);
     return response.data;
   },
 

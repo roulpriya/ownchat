@@ -75,5 +75,5 @@ class Message(db.Model):
             'chat_id': self.chat_id,
             'role': self.role,
             'content': self.content,
-            'created_at': self.created_at.isoformat()
+            'timestamp': self.created_at.isoformat()
         }

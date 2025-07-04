@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Chat } from '../types';
+import SearchModal from './SearchModal';
 import {
   PlusIcon,
   XMarkIcon,
@@ -9,14 +10,16 @@ import {
   PencilIcon,
   UserIcon,
   ArrowRightOnRectangleIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
   chats: Chat[];
   currentChatId?: string;
-  onCreateChat: (title?: string) => Promise<Chat>;
+  onCreateChat: (title?: string, model?: string) => Promise<Chat>;
   onDeleteChat: (id: string) => Promise<void>;
   onUpdateChatTitle: (id: string, title: string) => Promise<void>;
+  onSearchChats: (query: string) => Promise<Chat[]>;
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -27,12 +30,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCreateChat,
   onDeleteChat,
   onUpdateChatTitle,
+  onSearchChats,
   isOpen,
   onToggle,
 }) => {
   const { user, logout } = useAuth();
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const handleCreateNewChat = async () => {
     try {
@@ -135,13 +140,21 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* New Chat Button */}
-          <div className="p-4">
+          <div className="p-4 space-y-2">
             <button
               onClick={handleCreateNewChat}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
             >
               <PlusIcon className="h-4 w-4" />
               New Chat
+            </button>
+            
+            <button
+              onClick={() => setShowSearchModal(true)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              <MagnifyingGlassIcon className="h-4 w-4" />
+              Search Chats
             </button>
           </div>
 
@@ -236,6 +249,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
       </div>
+      
+      <SearchModal
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        onSearch={onSearchChats}
+      />
     </>
   );
 };

@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Chat, Message } from '../types';
 import { Bars3Icon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { AVAILABLE_MODELS } from '../constants/models';
 
 interface ChatWindowProps {
   chat: Chat | null;
   messages: Message[];
   onSendMessage: (content: string) => Promise<void>;
+  onUpdateChat?: (id: string, updates: Partial<Chat>) => Promise<void>;
   loading: boolean;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -15,6 +17,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   chat,
   messages,
   onSendMessage,
+  onUpdateChat,
   loading,
   sidebarOpen,
   onToggleSidebar,
@@ -66,6 +69,17 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+
+  const handleModelChange = async (newModel: string) => {
+    if (chat && onUpdateChat) {
+      try {
+        await onUpdateChat(chat.id, { model: newModel });
+      } catch (error) {
+        console.error('Failed to update chat model:', error);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* Header */}
@@ -85,8 +99,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         </div>
         
         {chat && (
-          <div className="text-sm text-gray-500">
-            Model: {chat.model}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Model:</span>
+            <select
+              value={chat.model}
+              onChange={(e) => handleModelChange(e.target.value)}
+              className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {AVAILABLE_MODELS.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
           </div>
         )}
       </div>

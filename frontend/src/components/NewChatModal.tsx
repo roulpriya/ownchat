@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { AVAILABLE_MODELS } from '../constants/models';
 
 interface NewChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateChat: (title?: string) => void;
+  onCreateChat: (title?: string, model?: string) => void;
 }
 
 const NewChatModal: React.FC<NewChatModalProps> = ({ isOpen, onClose, onCreateChat }) => {
   const [title, setTitle] = useState('');
+  const [model, setModel] = useState('gpt-4');
   const [isCreating, setIsCreating] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
     
     try {
-      await onCreateChat(title.trim() || undefined);
+      await onCreateChat(title.trim() || undefined, model);
       setTitle('');
+      setModel('gpt-4');
       onClose();
     } catch (error) {
       console.error('Error creating chat:', error);
@@ -28,6 +32,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({ isOpen, onClose, onCreateCh
 
   const handleClose = () => {
     setTitle('');
+    setModel('gpt-4');
     onClose();
   };
 
@@ -73,6 +78,24 @@ const NewChatModal: React.FC<NewChatModalProps> = ({ isOpen, onClose, onCreateCh
                 <p className="mt-1 text-sm text-gray-500">
                   Leave blank to generate a title automatically
                 </p>
+              </div>
+              
+              <div className="mb-4">
+                <label htmlFor="chat-model" className="block text-sm font-medium text-gray-700 mb-2">
+                  AI Model
+                </label>
+                <select
+                  id="chat-model"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {AVAILABLE_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} - {m.description}
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div className="flex justify-end space-x-3">
