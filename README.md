@@ -7,7 +7,7 @@ A full-stack chat application built with Next.js, Flask, and PostgreSQL that all
 ### Authentication
 - Email/password registration and login
 - Google OAuth integration
-- Secure JWT-based authentication
+- Session-based authentication with Flask-Login
 - User profile management
 
 ### Chat System
@@ -33,7 +33,9 @@ A full-stack chat application built with Next.js, Flask, and PostgreSQL that all
 ## Tech Stack
 
 ### Frontend
-- **Next.js 15** with TypeScript
+- **React 19** with TypeScript
+- **Vite** for build tooling
+- **React Router DOM** for navigation
 - **Tailwind CSS** for styling
 - **React Context** for state management
 - **Axios** for API calls
@@ -42,7 +44,7 @@ A full-stack chat application built with Next.js, Flask, and PostgreSQL that all
 ### Backend
 - **Flask** with Python
 - **Flask-SQLAlchemy** for database ORM
-- **Flask-JWT-Extended** for authentication
+- **Flask-Login** for authentication
 - **Flask-CORS** for cross-origin requests
 - **PostgreSQL** database
 
@@ -87,7 +89,7 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Edit .env with your configuration
-# Required: DATABASE_URL, SECRET_KEY, JWT_SECRET_KEY
+# Required: DATABASE_URL, SECRET_KEY
 # Optional: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OPENAI_API_KEY, ANTHROPIC_API_KEY
 ```
 
@@ -102,11 +104,27 @@ npm install
 cp .env.local.example .env.local
 
 # Edit .env.local with your configuration
-# Required: NEXT_PUBLIC_API_URL (usually http://localhost:5000/api)
-# Optional: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+# Required: VITE_API_URL (usually http://localhost:5000/api)
+# Optional: VITE_GOOGLE_CLIENT_ID
 ```
 
 ## Running the Application
+
+### Option 1: Using Docker Compose (Recommended)
+```bash
+# Create .env file in the root directory with your API keys
+cp .env.example .env
+
+# Start all services
+docker-compose up -d
+
+# The application will be available at:
+# - Frontend: http://localhost:3000
+# - Backend API: http://localhost:5000
+# - PostgreSQL: localhost:5432
+```
+
+### Option 2: Manual Setup
 
 ### 1. Start the Backend
 ```bash
@@ -121,7 +139,7 @@ The Flask API will be available at `http://localhost:5000`
 cd frontend
 npm run dev
 ```
-The Next.js app will be available at `http://localhost:3000`
+The React app will be available at `http://localhost:3000`
 
 ## Environment Variables
 
@@ -129,7 +147,6 @@ The Next.js app will be available at `http://localhost:3000`
 ```bash
 # Required
 SECRET_KEY=your-secret-key-here
-JWT_SECRET_KEY=your-jwt-secret-key-here
 DATABASE_URL=postgresql://username:password@localhost/ownchat
 
 # Optional - for Google OAuth
@@ -146,8 +163,8 @@ CORS_ORIGINS=http://localhost:3000
 
 ### Frontend (.env.local)
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:5001/api
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+VITE_API_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
 ## Setting up Google OAuth (Optional)
@@ -244,7 +261,7 @@ Users can search through their chat history by:
 ## Security Features
 
 - Password hashing using Werkzeug
-- JWT token-based authentication
+- Session-based authentication with Flask-Login
 - CORS protection
 - SQL injection prevention through SQLAlchemy ORM
 - Input validation and sanitization
