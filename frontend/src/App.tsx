@@ -16,20 +16,19 @@ function AppRoutes() {
       </div>
     );
   }
-
   return (
     <Routes>
-      <Route 
-        path="/" 
-        element={isAuthenticated ? <Navigate to="/chat" replace /> : <Home />} 
+      <Route
+        path="/"
+        element={isAuthenticated ? <Navigate to="/chat" replace /> : <Home />}
       />
-      <Route 
-        path="/login" 
-        element={isAuthenticated ? <Navigate to="/chat" replace /> : <Login />} 
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/chat" replace /> : <Login />}
       />
-      <Route 
-        path="/register" 
-        element={isAuthenticated ? <Navigate to="/chat" replace /> : <Register />} 
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/chat" replace /> : <Register />}
       />
       <Route
         path="/chat"
